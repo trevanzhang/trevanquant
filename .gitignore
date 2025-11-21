@@ -244,3 +244,6 @@ Desktop.ini
 
 # uv
 .uv_cache/
+
+# Spec workflow
+.spec-workflow/
