@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  trevanquant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trevanquant-app
+    restart: unless-stopped
+    environment:
+      - PYTHONPATH=/app
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      # 邮件配置（需要根据实际情况修改）
+      - SENDER_EMAIL=${SENDER_EMAIL}
+      - SENDER_PASSWORD=${SENDER_PASSWORD}
+      - EMAIL_RECIPIENTS=${EMAIL_RECIPIENTS}
+      - SMTP_SERVER=${SMTP_SERVER:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+    volumes:
+      # 持久化数据目录
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config:/app/config
+      # 数据库文件
+      - ./database.db:/app/database.db
+      # 配置文件
+      - ./.env:/app/.env:ro
+    networks:
+      - trevanquant-network
+    # 如果需要时区同步
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
+  # 可选：如果需要Web界面，可以添加nginx
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: trevanquant-nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #   depends_on:
+  #     - trevanquant
+  #   networks:
+  #     - trevanquant-network
+
+networks:
+  trevanquant-network:
+    driver: bridge
+
+volumes:
+  trevanquant-data:
+    driver: local
+  trevanquant-logs:
+    driver: local
